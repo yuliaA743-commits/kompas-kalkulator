@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kalkulator Strat z Powodu Przestoju Projektu</title>
+<style>
+  :root {
+    --bg: #0b1220;
+    --card: #111a2e;
+    --card-2: #16223b;
+    --border: #243452;
+    --text: #e8eefb;
+    --muted: #8fa0c0;
+    --blue: #2f7bff;
+    --blue-2: #5aa0ff;
+    --alert: #ff5a3c;
+    --alert-2: #ffb020;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  .calc {
+    max-width: 640px;
+    margin: 0 auto;
+    background: linear-gradient(180deg, var(--card) 0%, #0e1628 100%);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,.45);
+  }
+  .calc__head {
+    padding: 24px 24px 8px;
+    border-top: 4px solid var(--blue);
+  }
+  .calc__tag {
+    display: inline-block;
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--blue-2);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .calc__title { margin: 0 0 6px; font-size: 22px; line-height: 1.25; }
+  .calc__sub { margin: 0; color: var(--muted); font-size: 14px; }
+
+  .calc__body { padding: 16px 24px 8px; }
+  .field { margin-bottom: 22px; }
+  .field__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .field__label { font-size: 14px; font-weight: 600; }
+  .field__input {
+    display: flex;
+    align-items: center;
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 10px;
+    min-width: 112px;
+  }
+  .field__input:focus-within { border-color: var(--blue); }
+  .field__input input {
+    width: 64px;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 700;
+    text-align: right;
+    -moz-appearance: textfield;
+  }
+  .field__input input::-webkit-outer-spin-button,
+  .field__input input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .field__unit { color: var(--muted); font-size: 13px; margin-left: 6px; white-space: nowrap; }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right, var(--blue) var(--p, 0%), var(--border) var(--p, 0%));
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: #fff;
+    border: 4px solid var(--blue);
+    box-shadow: 0 2px 8px rgba(47,123,255,.5);
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    border: 4px solid var(--blue);
+  }
+  .field__scale {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  .result {
+    margin: 8px 24px 0;
+    padding: 22px 20px;
+    text-align: center;
+    background: radial-gradient(circle at 50% 0%, rgba(255,90,60,.18), transparent 70%), var(--card-2);
+    border: 1px solid rgba(255,90,60,.45);
+    border-radius: 14px;
+  }
+  .result__label {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+  }
+  .result__value {
+    font-size: clamp(34px, 9vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin: 6px 0;
+    background: linear-gradient(90deg, var(--alert), var(--alert-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-variant-numeric: tabular-nums;
+  }
+  .result__meta { font-size: 13px; color: var(--muted); }
+  .result__meta strong { color: var(--text); }
+
+  .cta { padding: 24px; text-align: center; }
+  .cta__headline { margin: 0 0 16px; font-size: 20px; line-height: 1.3; }
+  .cta__btn {
+    display: inline-block;
+    width: 100%;
+    padding: 16px 20px;
+    background: linear-gradient(180deg, var(--blue-2), var(--blue));
+    color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+    text-decoration: none;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(47,123,255,.4);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .cta__btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(47,123,255,.55); }
+  .cta__btn:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+  .cta__note { margin: 12px 0 0; font-size: 12px; color: var(--muted); }
+
+  @media (min-width: 560px) {
+    .calc__head, .calc__body, .cta { padding-left: 32px; padding-right: 32px; }
+    .result { margin-left: 32px; margin-right: 32px; }
+    .cta__btn { width: auto; padding: 16px 36px; }
+  }
+</style>
+</head>
+<body>
+
+<section class="calc" aria-labelledby="calc-title">
+  <div class="calc__head">
+    <span class="calc__tag">Kalkulator</span>
+    <h2 class="calc__title" id="calc-title">Ile kosztuje Cię brak spawaczy?</h2>
+    <p class="calc__sub">Ustaw parametry projektu i sprawdź, ile przestój kosztuje Twoją firmę.</p>
+  </div>
+
+  <div class="calc__body">
+    <div class="field">
+      <div class="field__top">
+        <label class="field__label" for="workers">Liczba brakujących spawaczy</label>
+        <div class="field__input">
+          <input type="number" id="workers-num" min="1" max="20" step="1" value="5" inputmode="numeric" aria-label="Liczba brakujących spawaczy">
+          <span class="field__unit">os.</span>
+        </div>
+      </div>
+      <input type="range" id="workers" min="1" max="20" step="1" value="5">
+      <div class="field__scale"><span>1</span><span>20</span></div>
+    </div>
+
+    <div class="field">
+      <div class="field__top">
+        <label class="field__label" for="cost">Dzienny koszt przestoju na 1 pracownika</label>
+        <div class="field__input">
+          <input type="number" id="cost-num" min="1000" max="5000" step="100" value="2500" inputmode="numeric" aria-label="Dzienny koszt przestoju w PLN">
+          <span class="field__unit">PLN</span>
+        </div>
+      </div>
+      <input type="range" id="cost" min="1000" max="5000" step="100" value="2500">
+      <div class="field__scale"><span>1 000 PLN</span><span>5 000 PLN</span></div>
+    </div>
+
+    <div class="field">
+      <div class="field__top">
+        <label class="field__label" for="weeks">Szacowany czas opóźnienia projektu</label>
+        <div class="field__input">
+          <input type="number" id="weeks-num" min="1" max="8" step="1" value="4" inputmode="numeric" aria-label="Opóźnienie w tygodniach">
+          <span class="field__unit">tyg.</span>
+        </div>
+      </div>
+      <input type="range" id="weeks" min="1" max="8" step="1" value="4">
+      <div class="field__scale"><span>1 tydzień</span><span>8 tygodni</span></div>
+    </div>
+  </div>
+
+  <div class="result" aria-live="polite">
+    <div class="result__label">Łączna strata z powodu przestoju</div>
+    <div class="result__value" id="total">0 PLN</div>
+    <div class="result__meta">
+      To <strong id="weekly">0 PLN</strong> tygodniowo
+      (<span id="summary"></span>)
+    </div>
+  </div>
+
+  <div class="cta">
+    <h3 class="cta__headline">Tyle tracisz co tydzień. Zamknij wakaty w 7 dni.</h3>
+    <a class="cta__btn" href="https://www.kompasmigracji.com/pl/orakul" target="_blank" rel="noopener">
+      Zobacz zweryfikowanych spawaczy w Orakul →
+    </a>
+    <p class="cta__note">Kalkulacja przy założeniu 5 dni roboczych w tygodniu.</p>
+  </div>
+</section>
+
+<script>
+(function () {
+  var WORKING_DAYS = 5;
+  var fmt = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 0 });
+
+  var fields = ['workers', 'cost', 'weeks'].map(function (id) {
+    return {
+      id: id,
+      range: document.getElementById(id),
+      num: document.getElementById(id + '-num')
+    };
+  });
+  var byId = {};
+  fields.forEach(function (f) { byId[f.id] = f; });
+
+  var totalEl = document.getElementById('total');
+  var weeklyEl = document.getElementById('weekly');
+  var summaryEl = document.getElementById('summary');
+
+  var shown = 0, rafId = null;
+
+  function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+
+  function paintRange(r) {
+    var p = (r.value - r.min) / (r.max - r.min) * 100;
+    r.style.setProperty('--p', p + '%');
+  }
+
+  function animateTo(target) {
+    if (rafId) cancelAnimationFrame(rafId);
+    var start = shown, diff = target - start, t0 = null, dur = 350;
+    function step(ts) {
+      if (!t0) t0 = ts;
+      var k = Math.min((ts - t0) / dur, 1);
+      var eased = 1 - Math.pow(1 - k, 3);
+      shown = start + diff * eased;
+      totalEl.textContent = fmt.format(Math.round(shown)) + ' PLN';
+      if (k < 1) rafId = requestAnimationFrame(step);
+    }
+    rafId = requestAnimationFrame(step);
+  }
+
+  function calculate() {
+    var w = +byId.workers.range.value;
+    var c = +byId.cost.range.value;
+    var wk = +byId.weeks.range.value;
+
+    var weekly = w * c * WORKING_DAYS;
+    var total = weekly * wk;
+
+    animateTo(total);
+    weeklyEl.textContent = fmt.format(weekly) + ' PLN';
+    summaryEl.textContent = w + ' × ' + fmt.format(c) + ' PLN × ' + WORKING_DAYS + ' dni × ' + wk + ' tyg.';
+  }
+
+  fields.forEach(function (f) {
+    paintRange(f.range);
+
+    f.range.addEventListener('input', function () {
+      f.num.value = f.range.value;
+      paintRange(f.range);
+      calculate();
+    });
+
+    f.num.addEventListener('input', function () {
+      if (f.num.value === '') return;
+      var v = clamp(parseFloat(f.num.value) || +f.range.min, +f.range.min, +f.range.max);
+      f.range.value = v;
+      paintRange(f.range);
+      calculate();
+    });
+
+    f.num.addEventListener('blur', function () {
+      f.num.value = f.range.value;
+    });
+  });
+
+  calculate();
+})();
+</script>
+
+</body>
+</html>
